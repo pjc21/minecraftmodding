@@ -35,17 +35,12 @@ public class TileEntityGlowstoneGenerator extends TileEntity implements ITickabl
 			if(!handler.getStackInSlot(0).isEmpty() && isItemFuel(handler.getStackInSlot(0)))
 			{
 				cookTime++;
-				
 				if(cookTime == 25)
 				{
 					energy += getFuelValue(handler.getStackInSlot(0));
 					this.storage.receiveEnergy(getFuelValue(handler.getStackInSlot(0)), false);
-					
-					//System.out.println("Update - From EnergyStorage" + this.storage.getEnergyStored());
-					//System.out.println("Update - From TileEntity" + this.energy);
-					
 					handler.getStackInSlot(0).shrink(1);
-					cookTime = 0;
+					cookTime = 1;
 				}
 				this.markDirty();
 			}
@@ -88,11 +83,6 @@ public class TileEntityGlowstoneGenerator extends TileEntity implements ITickabl
 		compound.setInteger("GuiEnergy", this.energy);
 		compound.setString("Name", getDisplayName().toString());
 		this.storage.writeToNBT(compound);
-		
-		//System.out.println("TileEntity WriteNBT- Compound " + compound.toString());
-		//System.out.println("TileEntity WriteNBT - From Storage Energy " + this.storage.getEnergyStored());
-		//System.out.println("TileEntity WriteNBT - This Get Energy " + this.energy);
-		
 		return compound;
 	}
 	
@@ -105,10 +95,6 @@ public class TileEntityGlowstoneGenerator extends TileEntity implements ITickabl
 		this.energy = compound.getInteger("GuiEnergy");
 		this.customName = compound.getString("Name");
 		this.storage.readFromNBT(compound);
-		
-		//System.out.println("TileEntity ReadNBT- Compound " + compound.toString());
-		//System.out.println("TileEntity ReadNBT - From Storage Energy " + this.storage.getEnergyStored());
-		//System.out.println("TileEntity ReadNBT - This Get Energy " + this.energy);
 	}
 
 	@Override
