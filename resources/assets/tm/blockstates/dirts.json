@@ -1,0 +1,7 @@
+{
+    "variants": 
+    {
+        "variant=red": { "model": "tm:dirts_red" },
+        "variant=blue": { "model": "tm:dirts_blue" }
+    }
+}

@@ -1,0 +1,24 @@
+{
+    "type": "minecraft:crafting_shaped",
+    
+    "pattern": 
+    [
+        "r r",
+        "rrr",
+        "rrr"
+    ],
+    
+    "key": 
+    {
+        "r":
+        {
+            "item": "tm:blue_crystal"    
+        }
+    },
+    
+    "result": 
+    {
+        "item": "tm:chestplate_unikitty",
+        "count": 1
+    }
+}

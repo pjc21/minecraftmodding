@@ -1,0 +1,24 @@
+{
+    "type": "minecraft:crafting_shaped",
+    
+    "pattern": 
+    [
+        "ss",
+        "ss"
+    ],
+    
+    "key": 
+    {
+        "s":
+        {
+            "item": "tm:string_purple"    
+        }
+    },
+    
+    "result": 
+    {
+        "item": "minecraft:wool",
+        "data": 10,
+        "count": 1
+    }
+}
