@@ -13,19 +13,12 @@ public class GuiGlowstoneGenerator extends GuiContainer
 	private static final ResourceLocation TEXTURES = new ResourceLocation(Reference.MODID + ":textures/gui/glowstone_generator.png");
 	private final InventoryPlayer player;
 	private final TileEntityGlowstoneGenerator tileentity;
-	private boolean flag = false;
 	
 	public GuiGlowstoneGenerator(InventoryPlayer player, TileEntityGlowstoneGenerator tileentity) 
 	{
 		super(new ContainerGlowstoneGenerator(player, tileentity));
 		this.player = player;
 		this.tileentity = tileentity;
-		
-		// CookTime is correct here
-		
-		//System.out.println("GUI Constructor Energy " + this.tileentity.energy);
-		//System.out.println("GUI Constructor CookTime - From this tileentity " + this.tileentity.cookTime);
-		//System.out.println("GUI Constructor CookTime - From tileentity method " + this.tileentity.getCookTime());
 	}
 	
 	@Override
@@ -46,14 +39,9 @@ public class GuiGlowstoneGenerator extends GuiContainer
 		
 		int l = this.getCookProgressScaled(24);
 		this.drawTexturedModalRect(this.guiLeft + 113, this.guiTop + 32, 176, 14, l + 1, 16);
-		
-		// CookTime Somehow equals energy stored when called from here.
-		
-		//System.out.println("GUI CookTime " + this.tileentity.cookTime);
-		//System.out.println("GUI CookTime " + this.tileentity.getCookTime());
 
-		int k = this.getEnergyStoredScaled(75);
-		this.drawTexturedModalRect(this.guiLeft + 152, this.guiTop + 7, 176, 32, 16, 76 - k);
+		int k = this.getEnergyStoredScaled(76);
+		this.drawTexturedModalRect(this.guiLeft + 152, this.guiTop + 7, 176, 31, 16, 76 - k);
 	}
 
 	private int getEnergyStoredScaled(int pixels)
@@ -67,13 +55,7 @@ public class GuiGlowstoneGenerator extends GuiContainer
 	private int getCookProgressScaled(int pixels)
 	{
 		int m = this.tileentity.getCookTime();
-		int n = this.tileentity.getEnergyStored();
-		if(m == n)
-		{
-			m = 0;
-			//System.out.println("GUI - CookTime is Equal to Energy Stored??? WTF How ");
-		}
-		return m != 0 ? m * pixels / 25 : 0;
+		return m != 1 ? m * pixels / 25 : 0;
 	}
 	
 	@Override
@@ -83,7 +65,7 @@ public class GuiGlowstoneGenerator extends GuiContainer
         super.drawScreen(mouseX, mouseY, partialTicks);
         renderHoveredToolTip(mouseX, mouseY);
         
-        if (mouseX > this.guiLeft + 152 && mouseX < this.guiLeft + 152 + 16 && mouseY > this.guiTop + 7 && mouseY < this.guiTop + 7 + 76)
+        if (mouseX > this.guiLeft + 151 && mouseX < this.guiLeft + 152 + 16 && mouseY > this.guiTop + 6 && mouseY < this.guiTop + 4 + 76)
         {
             this.drawHoveringText(Integer.toString(this.tileentity.energy) + " FluxEnergy", mouseX, mouseY);
         }
