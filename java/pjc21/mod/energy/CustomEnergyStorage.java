@@ -69,6 +69,11 @@ public class CustomEnergyStorage extends EnergyStorage
     	}
     }
     
+    public void setEnergyStored(int data)
+	{
+		this.energy = data;
+	}
+    
     public void writeToNBT(NBTTagCompound compound)
     {
     	compound.setInteger("Energy", this.energy);

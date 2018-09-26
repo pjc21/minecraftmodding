@@ -15,7 +15,7 @@ import pjc21.mod.objects.blocks.tileentities.TileEntityGlowstoneGenerator;
 public class ContainerGlowstoneGenerator extends Container
 {
 	private final TileEntityGlowstoneGenerator tileentity;
-	private int energy, cookTime;
+	private int energy, cookTime, totalcooktime;
 	
 	public ContainerGlowstoneGenerator(InventoryPlayer player, TileEntityGlowstoneGenerator tileentity) 
 	{

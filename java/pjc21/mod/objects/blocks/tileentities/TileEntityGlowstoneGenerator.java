@@ -9,6 +9,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
@@ -30,20 +31,31 @@ public class TileEntityGlowstoneGenerator extends TileEntity implements ITickabl
 	@Override
 	public void update() 
 	{
+		boolean flag = false;
+		
 		if(this.storage.canReceive())
 		{
 			if(!handler.getStackInSlot(0).isEmpty() && isItemFuel(handler.getStackInSlot(0)))
 			{
-				cookTime++;
-				if(cookTime == 25)
+				++this.cookTime;
+				if(this.cookTime == 25)
 				{
+					cookTime = 0;
 					energy += getFuelValue(handler.getStackInSlot(0));
 					this.storage.receiveEnergy(getFuelValue(handler.getStackInSlot(0)), false);
 					handler.getStackInSlot(0).shrink(1);
-					cookTime = 1;
+					flag = true;
 				}
-				this.markDirty();
 			}
+			else if(handler.getStackInSlot(0).isEmpty() && cookTime == 0)
+			{
+				this.cookTime = -1;
+			}
+		}
+		
+		if(flag)
+		{
+			this.markDirty();
 		}
 	}
 	
@@ -57,7 +69,7 @@ public class TileEntityGlowstoneGenerator extends TileEntity implements ITickabl
 		if(stack.getItem() == Items.GLOWSTONE_DUST) return 1000;
 		else return 0;
 	}
-	
+
 	@Override
 	public <T> T getCapability(Capability<T> capability, EnumFacing facing) 
 	{
@@ -147,11 +159,6 @@ public class TileEntityGlowstoneGenerator extends TileEntity implements ITickabl
 	public int getMaxEnergyStored() 
 	{
 		return this.storage.getMaxEnergyStored();
-	}
-	
-	public int getCookTime() 
-	{
-		return this.cookTime;
 	}
 	
 	public int getField(int id)
