@@ -5,6 +5,8 @@ entity.unikitty.name=UniKitty
 container.sintering_furnace=Sintering Furnace
 container.glowstone_generator=Glowstone Generator
 container.copper_chest=Copper Chest
+container.electric_sintering_furnace=Electric Sinterer
+
 
 generator.Copper=Copper Biome
 generator.Custom=Custom Biome
@@ -85,6 +87,9 @@ tile.santa_hat.name=Santa Hat
 tile.sintering_furnace.name=Sintering Furnace
 tile.glowstone_generator.name=Glowstone Generator
 tile.copper_chest.name=Copper Chest
+tile.electric_sintering_furnace.name=Electric Sinterer
 
 tile.rice_plant.name=Rice Plant
 
+fluid.oil=Crude Oil
+tile.oil.name=Crude Oil
