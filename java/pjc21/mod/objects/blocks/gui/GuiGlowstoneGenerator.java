@@ -55,7 +55,7 @@ public class GuiGlowstoneGenerator extends GuiContainer
 	private int getCookProgressScaled(int pixels)
 	{
 		int m = this.tileentity.cookTime;
-		return m != -1 ? m * pixels / 25 : 0;
+		return m != 0 ? m * pixels / 25 : 0;
 	}
 	
 	@Override
