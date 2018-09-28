@@ -88,7 +88,7 @@ public class SinteringFurnaceRecipes
 	
 	public boolean isValidRecipeItem(ItemStack stack)
 	{
-		for(Entry<ItemStack, Map<ItemStack, ItemStack>> entry : SinteringFurnaceRecipes.getInstance().smeltingList.columnMap().entrySet()) 
+		for(Entry<ItemStack, Map<ItemStack, ItemStack>> entry : this.smeltingList.columnMap().entrySet()) 
 		{
 			ItemStack stack1 = (ItemStack)entry.getKey();
 			
