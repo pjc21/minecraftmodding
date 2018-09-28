@@ -16,6 +16,8 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import pjc21.mod.energy.CustomEnergyStorage;
@@ -34,22 +36,22 @@ public class TileEntityElectricSinteringFurnace extends TileEntity implements IT
 	};
 	
 	private CustomEnergyStorage storage = new CustomEnergyStorage(100000, 1000, 1000);
-	private ItemStack smelting = ItemStack.EMPTY; 
 	private String customName;
 	private int energy = storage.getEnergyStored();
 	private int cookTime;
+	private boolean lit;
 	
 	public int getEnergyStored() 
 	{
 		return this.energy; 
 	}
 	
-	public int getMaxEnergyStored() 
+	public int getMaxEnergyStored()
 	{
 		return this.storage.getMaxEnergyStored();
 	}
 	
-	public boolean hasEnergy()
+	private boolean hasEnergy()
     {
         return this.energy > 0;
     }
@@ -74,83 +76,80 @@ public class TileEntityElectricSinteringFurnace extends TileEntity implements IT
 		return this.cookTime > 0;
 	}
 	
+	private int extractEnergy(int energy, boolean a)
+	{
+		return this.storage.extractEnergy(energy, a);
+	}
+
 	public void update()
 	{
-		if(world.isBlockPowered(pos)) 
+
+		boolean flag = false;
+		boolean flag1 = this.isCooking();
+
+		if(lit)
 		{
-			this.energy += getEnergyValue();
-			this.storage.receiveEnergy(getEnergyValue(), false);
+			 BlockElectricSinteringFurnace.setState(this.isCooking(), world, pos);
 		}
 		
-        boolean flag = false;
-		
-		if(!this.world.isRemote)
+		if(world.isBlockPowered(pos))
 		{
-			ItemStack[] inputs = new ItemStack[] {handler.getStackInSlot(0), handler.getStackInSlot(1)};
-			
-			if(this.hasEnergy() && !inputs[0].isEmpty() && !inputs[1].isEmpty())
+			if(this.storage.canReceive())
 			{
-				if (this.hasEnergy() && this.canSmelt())
-                {
-                    ++this.cookTime;
-                    //System.out.println("CookTime Running " + this.cookTime);
-
-                    this.energy -= burnEnergy();
-    				this.storage.extractEnergy(burnEnergy(), false);
-    				
-    				//BlockElectricSinteringFurnace.setState(true, world, pos);
-                    
-                    if (this.cookTime == 100)
-                    {
-                        this.cookTime = 0;
-                        this.smeltItem();
-                        inputs[0].shrink(1);
-						inputs[1].shrink(1);
-						handler.setStackInSlot(0, inputs[0]);
-						handler.setStackInSlot(1, inputs[1]);
-                        flag = true;
-                        return;
-                    }
-                }
-				/*else
-				{
-					this.cookTime = 0;
-				}*/
-			}
-			else if (inputs[0].isEmpty() || inputs[1].isEmpty() && this.cookTime > 0)
-			{
-				this.cookTime = MathHelper.clamp(this.cookTime - 2, 0, 100);
-				//BlockElectricSinteringFurnace.setState(false, world, pos);
-			}
-			else if (!this.hasEnergy() && this.cookTime > 0)
-            {
-
-				this.cookTime = MathHelper.clamp(this.cookTime - 2, 0, 100);
-				//BlockElectricSinteringFurnace.setState(false, world, pos);
-                //System.out.println("Energy Less - CookTime " + this.cookTime);
-                //System.out.println("Energy Less - Energy " + this.energy);
-                //System.out.println("Energy Less - StorageEnergy " + this.storage.getEnergyStored());
-                //System.out.println("Energy Less - Energy 2 " + this.getEnergyStored());
-            }
-
-			if (this.isCooking()) 	
-	        {
-	            flag = true;
-	            BlockElectricSinteringFurnace.setState(this.isCooking(), world, pos);
-	        }
-			else if(!this.isCooking())
-			{
+				this.storage.receiveEnergy(getEnergyValue(), false);
+				this.energy = this.storage.getEnergyStored();
 				flag = true;
-				BlockElectricSinteringFurnace.setState(this.isCooking(), world, pos);
 			}
 		}
 		
+		ItemStack[] inputs = new ItemStack[] {handler.getStackInSlot(0), handler.getStackInSlot(1)};
+		
+		if(this.hasEnergy() && !inputs[0].isEmpty() && !inputs[1].isEmpty())
+		{
+			if (this.hasEnergy() && this.canSmelt())
+            {
+                ++this.cookTime;
+
+                if(this.storage.canExtract())
+                {
+    				this.storage.extractEnergy(burnEnergy(), false);
+    				this.energy = this.storage.getEnergyStored();
+    				flag = true;
+                }
+
+                if (this.cookTime == 100)
+                {
+                    this.cookTime = 1;
+                    this.smeltItem();
+                    inputs[0].shrink(1);
+					inputs[1].shrink(1);
+					handler.setStackInSlot(0, inputs[0]);
+					handler.setStackInSlot(1, inputs[1]);
+                    flag = true;
+                }
+            }
+		}
+		else if (inputs[0].isEmpty() || inputs[1].isEmpty() && this.cookTime > 0)
+		{
+			this.cookTime = MathHelper.clamp(this.cookTime - 2, 0, 100);
+		}
+		else if (!this.hasEnergy() && this.cookTime > 0)
+        {
+			this.cookTime = MathHelper.clamp(this.cookTime - 2, 0, 100);
+        }
+
+		if (flag1 != this.isCooking())	
+        {
+			lit = this.isCooking();
+            BlockElectricSinteringFurnace.setState(this.isCooking(), world, pos);
+        }
+
 		if (flag)
         {
             this.markDirty();
         }
 	}
-
+	
 	private boolean canSmelt()
     {
         if (this.handler.getStackInSlot(0).isEmpty() && this.handler.getStackInSlot(1).isEmpty())
@@ -204,14 +203,9 @@ public class TileEntityElectricSinteringFurnace extends TileEntity implements IT
             {
                 itemstack2.grow(itemstack1.getCount());
             }
-            
-            //this.handler.getStackInSlot(0).shrink(1);
-            //this.handler.getStackInSlot(1).shrink(1);
         }
     }
-	
-	
-	
+
 	@Override
 	public <T> T getCapability(Capability<T> capability, EnumFacing facing) 
 	{
@@ -236,10 +230,9 @@ public class TileEntityElectricSinteringFurnace extends TileEntity implements IT
 		compound.setInteger("CookTime", this.cookTime);
 		compound.setInteger("GuiEnergy", this.energy);
 		compound.setString("Name", getDisplayName().toString());
+		compound.setBoolean("Lit", this.lit);
 		this.storage.writeToNBT(compound);
-		//System.out.println("WriteNBT - Compound " + compound);
-		//System.out.println("WriteNBT - CookTime " + compound.getInteger("CookTime"));
-		//System.out.println("WriteNBT - Energy " + compound.getInteger("GuiEnergy"));
+		if(this.hasCustomName()) compound.setString("CustomName", this.customName);
 		return compound;
 	}
 	
@@ -250,19 +243,14 @@ public class TileEntityElectricSinteringFurnace extends TileEntity implements IT
 		this.handler.deserializeNBT(compound.getCompoundTag("Inventory"));
 		this.cookTime = compound.getInteger("CookTime");
 		this.energy = compound.getInteger("GuiEnergy");
-		this.customName = compound.getString("Name");
+		this.lit = compound.getBoolean("Lit");
 		this.storage.readFromNBT(compound);
-		//System.out.println("ReadNBT - Compound " + compound);
-		//System.out.println("ReadNBT - CookTime " + this.cookTime);
-		//System.out.println("ReadNBT - Energy " + this.energy);
-		
-		
+		if(compound.hasKey("CustomName", 8)) this.setCustomName(compound.getString("CustomName"));
 	}
 
 	@Override
 	public NBTTagCompound getUpdateTag() 
 	{
-		System.out.println("Update Tag");
 		return writeToNBT(new NBTTagCompound());
 	}
 	
@@ -277,7 +265,7 @@ public class TileEntityElectricSinteringFurnace extends TileEntity implements IT
 	{
 		NBTTagCompound tag = new NBTTagCompound();
 		writeToNBT(tag);
-		return new SPacketUpdateTileEntity(this.pos, 0, tag);
+		return new SPacketUpdateTileEntity(this.pos, 1, tag);
 	}
 	
 	@Override
@@ -291,9 +279,9 @@ public class TileEntityElectricSinteringFurnace extends TileEntity implements IT
 	}*/
 	
 	@Override
-	public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newSate) 
+	public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newState) 
 	{
-		return super.shouldRefresh(world, pos, oldState, newSate);
+		return oldState != newState;
 	}
 
 	public boolean hasCustomName() 
@@ -325,6 +313,8 @@ public class TileEntityElectricSinteringFurnace extends TileEntity implements IT
 			return this.cookTime;
 		case 1:
 			return this.energy;
+		case 2:
+			return this.storage.getEnergyStored();
 		default:
 			return 0;
 		}
@@ -339,6 +329,8 @@ public class TileEntityElectricSinteringFurnace extends TileEntity implements IT
 			break;
 		case 1:
 			this.energy = value;
+		case 2:
+			this.storage.setEnergyStored(value);
 		}
 	}
 }

@@ -13,14 +13,17 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.item.ItemTool;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.world.EnumSkyBlock;
+import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
@@ -43,13 +46,11 @@ public class TileEntitySinteringFurnace extends TileEntity implements ITickable
 	};
 	
 	private String customName;
-	private ItemStack smelting = ItemStack.EMPTY;
-	
-	private final int FLAGS = 3;
 	private int burnTime;
 	private int currentBurnTime;
 	private int cookTime;
 	private int totalCookTime = 200;
+	private boolean lit;
 	
 	public static boolean isItemFuel(ItemStack fuel)
 	{
@@ -69,81 +70,81 @@ public class TileEntitySinteringFurnace extends TileEntity implements ITickable
 	@SideOnly(Side.CLIENT)
 	public static boolean isBurning(TileEntitySinteringFurnace te) 
 	{
-		return te.getField(0) > 0;
+		return te.burnTime > 0;
 	}
 	
 	public void update() 
 	{	
 		boolean flag = false;
+		boolean flag1 = false;
+		
+		if(lit)
+		{
+			 BlockSinteringFurnace.setState(this.isBurning(), world, pos);
+		}
 		
 		if(this.isBurning())
 		{
 			--this.burnTime;
+			flag1 = true;
 		}
 
-		if(!world.isRemote)
+		ItemStack[] inputs = new ItemStack[] {handler.getStackInSlot(0), handler.getStackInSlot(1)};
+		ItemStack fuel = this.handler.getStackInSlot(2);
+
+		if(this.isBurning() || !fuel.isEmpty())
 		{
-			ItemStack[] inputs = new ItemStack[] {handler.getStackInSlot(0), handler.getStackInSlot(1)};
-			ItemStack fuel = this.handler.getStackInSlot(2);
-			
-			if(this.isBurning() || !fuel.isEmpty() && !inputs[0].isEmpty() || !inputs[1].isEmpty())
+			if(!this.isBurning() && this.canSmelt())
 			{
-				if(!this.isBurning() && this.canSmelt())
+				this.burnTime = getItemBurnTime(fuel);
+				this.currentBurnTime = burnTime;
+				
+				if(this.isBurning() && !fuel.isEmpty())
 				{
-					this.burnTime = getItemBurnTime(fuel);
-					this.currentBurnTime = burnTime;
+					Item item = fuel.getItem();
+					fuel.shrink(1);
 					
-					if(this.isBurning() && !fuel.isEmpty())
+					if(fuel.isEmpty())
 					{
-						Item item = fuel.getItem();
-						fuel.shrink(1);
-						
-						if(fuel.isEmpty())
-						{
-							ItemStack item1 = item.getContainerItem(fuel);
-							this.handler.setStackInSlot(2, item1);
-						}
+						ItemStack item1 = item.getContainerItem(fuel);
+						this.handler.setStackInSlot(2, item1);
 					}
-				}
-			}
-			if(this.isBurning() && !inputs[0].isEmpty() && !inputs[1].isEmpty())
-			{
-				if(this.isBurning() && this.canSmelt())
-				{
-					++this.cookTime;
 					
-					if(this.cookTime == this.totalCookTime)
-					{
-						this.cookTime = 0;
-						this.smeltItem();
-						inputs[0].shrink(1);
-						inputs[1].shrink(1);
-						handler.setStackInSlot(0, inputs[0]);
-						handler.setStackInSlot(1, inputs[1]);
-						flag = true;
-					}
 				}
-			}
-			else if (inputs[0].isEmpty() || inputs[1].isEmpty() && this.cookTime > 0)
-			{
-				this.cookTime = MathHelper.clamp(this.cookTime - 2, 0, this.totalCookTime);
-			}
-			else if (!this.isBurning() && fuel.isEmpty() && this.cookTime > 0)
-	        {
-				this.cookTime = MathHelper.clamp(this.cookTime - 2, 0, this.totalCookTime);
-	        }
-			
-			if (this.isBurning()) 	
-	        {
-	            flag = true;
-	            BlockSinteringFurnace.setState(this.isBurning(), world, pos);
-	        }
-			else if(!this.isBurning())
-			{
-				flag = true;
-	            BlockSinteringFurnace.setState(this.isBurning(), world, pos);
 			}
 		}
+		if(this.isBurning() && !inputs[0].isEmpty() && !inputs[1].isEmpty())
+		{
+			if(this.isBurning() && this.canSmelt())
+			{
+				++this.cookTime;
+				
+				if(this.cookTime == this.totalCookTime)
+				{
+					this.cookTime = 0;
+					this.smeltItem();
+					inputs[0].shrink(1);
+					inputs[1].shrink(1);
+					handler.setStackInSlot(0, inputs[0]);
+					handler.setStackInSlot(1, inputs[1]);
+					flag = true;
+				}
+			}
+		}
+		else if (inputs[0].isEmpty() || inputs[1].isEmpty() && this.cookTime > 0)
+		{
+			this.cookTime = MathHelper.clamp(this.cookTime - 2, 0, this.totalCookTime);
+		}
+		else if (!this.isBurning() && fuel.isEmpty() && this.cookTime > 0)
+        {
+			this.cookTime = MathHelper.clamp(this.cookTime - 2, 0, this.totalCookTime);
+        }
+		
+		if (flag1 != this.isBurning())
+        {
+			lit = this.isBurning();
+            BlockSinteringFurnace.setState(this.isBurning(), world, pos);
+        }
 
 		if (flag)
         {
@@ -207,7 +208,7 @@ public class TileEntitySinteringFurnace extends TileEntity implements ITickable
         }
     }
 	
-	public static int getItemBurnTime(ItemStack fuel) 
+	private static int getItemBurnTime(ItemStack fuel)
 	{
 		if(fuel.isEmpty()) return 0;
 		else 
@@ -256,9 +257,10 @@ public class TileEntitySinteringFurnace extends TileEntity implements ITickable
 		super.writeToNBT(compound);
 		compound.setTag("Inventory", this.handler.serializeNBT());
 		compound.setInteger("BurnTime", (short)this.burnTime);
+		compound.setInteger("CurrentBurnTime", (short)this.currentBurnTime);
 		compound.setInteger("CookTime", (short)this.cookTime);
 		compound.setInteger("CookTimeTotal", (short)this.totalCookTime);
-
+		compound.setBoolean("Lit", this.lit);
 		if(this.hasCustomName()) compound.setString("CustomName", this.customName);
 		return compound;
 	}
@@ -269,10 +271,11 @@ public class TileEntitySinteringFurnace extends TileEntity implements ITickable
 		super.readFromNBT(compound);
 		this.handler.deserializeNBT(compound.getCompoundTag("Inventory"));
 		this.burnTime = compound.getInteger("BurnTime");
+		this.currentBurnTime = compound.getInteger("CurrentBurnTime");
 		this.cookTime = compound.getInteger("CookTime");
 		this.totalCookTime = compound.getInteger("CookTimeTotal");
-		this.currentBurnTime = getItemBurnTime((ItemStack)this.handler.getStackInSlot(2));
-		
+		this.lit = compound.getBoolean("Lit");
+
 		if(compound.hasKey("CustomName", 8)) this.setCustomName(compound.getString("CustomName"));
 	}
 
@@ -288,6 +291,30 @@ public class TileEntitySinteringFurnace extends TileEntity implements ITickable
 		super.handleUpdateTag(tag);
 	}
 
+	/*@Override
+	public SPacketUpdateTileEntity getUpdatePacket() 
+	{
+		NBTTagCompound tag = new NBTTagCompound();
+		writeToNBT(tag);
+		return new SPacketUpdateTileEntity(this.pos, 1, tag);
+	}
+	
+	@Override
+	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet) 
+	{
+		super.onDataPacket(net, packet);
+		readFromNBT(packet.getNbtCompound());
+
+		IBlockState state = this.world.getBlockState(this.pos);
+		this.world.notifyBlockUpdate(this.pos, state, state, 2);
+	}*/
+	
+	@Override
+	public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newState) 
+	{
+		return oldState != newState;
+	}
+	
 	public boolean hasCustomName() 
 	{
 		return this.customName != null && !this.customName.isEmpty();
@@ -301,7 +328,7 @@ public class TileEntitySinteringFurnace extends TileEntity implements ITickable
 	@Override
 	public ITextComponent getDisplayName() 
 	{
-		return this.hasCustomName() ? new TextComponentString(this.customName) : new TextComponentTranslation("container.sintering_furnace");
+		return new TextComponentTranslation("container.sintering_furnace");
 	}
 	
 	public boolean isUsableByPlayer(EntityPlayer player) 
