@@ -18,12 +18,12 @@ import pjc21.mod.objects.blocks.tileentities.TileEntitySinteringFurnace;
 
 public class ContainerSinteringFurnace extends Container
 {
-	private final TileEntitySinteringFurnace titeentity;
+	private final TileEntitySinteringFurnace tileentity;
 	private int cookTime, totalCookTime, burnTime, currentBurnTime;
 	
 	public ContainerSinteringFurnace(InventoryPlayer player, TileEntitySinteringFurnace tileentity) 
 	{
-		this.titeentity = tileentity;
+		this.tileentity = tileentity;
 		IItemHandler handler = tileentity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
 
 		this.addSlotToContainer(new SlotSinteringFurnaceInputs(handler, 0, 26, 17));
@@ -48,14 +48,14 @@ public class ContainerSinteringFurnace extends Container
 	@Override
 	public boolean canInteractWith(EntityPlayer playerIn) 
 	{
-		return this.titeentity.isUsableByPlayer(playerIn);
+		return this.tileentity.isUsableByPlayer(playerIn);
 	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void updateProgressBar(int id, int data) 
 	{
-		this.titeentity.setField(id, data);
+		this.tileentity.setField(id, data);
 	}
 	
 	@Override
@@ -67,16 +67,16 @@ public class ContainerSinteringFurnace extends Container
 		{
 			IContainerListener listener = (IContainerListener)this.listeners.get(i);
 			
-			if(this.cookTime != this.titeentity.getField(2)) listener.sendWindowProperty(this, 2, this.titeentity.getField(2));
-			if(this.burnTime != this.titeentity.getField(0)) listener.sendWindowProperty(this, 0, this.titeentity.getField(0));
-			if(this.currentBurnTime != this.titeentity.getField(1)) listener.sendWindowProperty(this, 1, this.titeentity.getField(1));
-			if(this.totalCookTime != this.titeentity.getField(3)) listener.sendWindowProperty(this, 3, this.titeentity.getField(3));
+			if(this.cookTime != this.tileentity.getField(2)) listener.sendWindowProperty(this, 2, this.tileentity.getField(2));
+			if(this.burnTime != this.tileentity.getField(0)) listener.sendWindowProperty(this, 0, this.tileentity.getField(0));
+			if(this.currentBurnTime != this.tileentity.getField(1)) listener.sendWindowProperty(this, 1, this.tileentity.getField(1));
+			if(this.totalCookTime != this.tileentity.getField(3)) listener.sendWindowProperty(this, 3, this.tileentity.getField(3));
 		}
 		
-		this.cookTime = this.titeentity.getField(2);
-		this.burnTime = this.titeentity.getField(0);
-		this.currentBurnTime = this.titeentity.getField(1);
-		this.totalCookTime = this.titeentity.getField(3);
+		this.cookTime = this.tileentity.getField(2);
+		this.burnTime = this.tileentity.getField(0);
+		this.currentBurnTime = this.tileentity.getField(1);
+		this.totalCookTime = this.tileentity.getField(3);
 	}
 
 	@Override
@@ -87,130 +87,207 @@ public class ContainerSinteringFurnace extends Container
 		
 		if(slot != null && slot.getHasStack()) 
 		{
-			ItemStack stack1 = slot.getStack();
-			stack = stack1.copy();
+			ItemStack grabStack = slot.getStack();
+			stack = grabStack.copy();
 			
 			if(index == 3) 
 			{
-				if(!this.mergeItemStack(stack1, 4, 40, false)) return ItemStack.EMPTY;
-				slot.onSlotChange(stack1, stack);
+				if(!this.mergeItemStack(grabStack, 4, 40, false)) return ItemStack.EMPTY;
+				slot.onSlotChange(grabStack, stack);
 			}
-			else if(index != 2 && index != 1 && index != 0) 
+			else if(index != 2 && index != 1 && index != 0)
 			{		
-				Slot slot0 = (Slot)this.inventorySlots.get(0);
-				Slot slot1 = (Slot)this.inventorySlots.get(1);
-				ItemStack stack2 = slot0.getStack();
-				ItemStack stack3 = slot1.getStack();
+				Slot inputSlot_0 = (Slot)this.inventorySlots.get(0);
+				Slot inputSlot_1 = (Slot)this.inventorySlots.get(1);
+				Slot fuelSlot = (Slot)this.inventorySlots.get(2);
+				ItemStack input_0 = inputSlot_0.getStack();
+				ItemStack input_1 = inputSlot_1.getStack();
+				ItemStack fuel = fuelSlot.getStack();
 				
-				if(slot0.getStack().isEmpty() && slot1.getStack().isEmpty())
+				if(SinteringFurnaceRecipes.getInstance().isValidRecipeItem(grabStack))
 				{
-					if(SinteringFurnaceRecipes.getInstance().isValidRecipeItem(stack1))
+					if(inputSlot_0.getStack().isEmpty() && inputSlot_1.getStack().isEmpty())
 					{
-						if(!this.mergeItemStack(stack1, 0, 2, false)) 
+						if(!this.mergeItemStack(grabStack, 0, 2, false)) 
 						{
 							return ItemStack.EMPTY;
 						}
 					}
-					else if(TileEntitySinteringFurnace.isItemFuel(stack1))
+					else if(inputSlot_0.getStack().isEmpty())
 					{
-						if(!this.mergeItemStack(stack1, 2, 3, false)) 
+						if(!SinteringFurnaceRecipes.getInstance().getSinteringResult(grabStack, input_1).isEmpty())
 						{
-							return ItemStack.EMPTY;
-						}
-					}
-				}
-				else if(slot0.getStack().isEmpty() || slot1.getStack().isEmpty())
-				{
-					if(slot0.getStack().isEmpty())
-					{
-						if(SinteringFurnaceRecipes.getInstance().isValidRecipeItem(stack1))
-						{
-							if(!SinteringFurnaceRecipes.getInstance().getSinteringResult(stack1, stack3).isEmpty())
-							{
-								if(!this.mergeItemStack(stack1, 0, 1, false)) 
-								{
-									return ItemStack.EMPTY;
-								}
-							}
-							else if(stack1.isItemEqual(stack3))
-							{
-								if(!this.mergeItemStack(stack1, 1, 2, false)) 
-								{
-									return ItemStack.EMPTY;
-								}
-							}
-						}
-						else if(TileEntitySinteringFurnace.isItemFuel(stack1))
-						{
-							if(!this.mergeItemStack(stack1, 2, 3, false)) 
+							if(!this.mergeItemStack(grabStack, 0, 1, false)) 
 							{
 								return ItemStack.EMPTY;
+							}
+						}
+						else if(grabStack.isItemEqual(input_1) && input_1.getCount() < input_1.getMaxStackSize())
+						{
+							if(!this.mergeItemStack(grabStack, 1, 2, false)) 
+							{
+								return ItemStack.EMPTY;
+							}
+						}
+						else if(grabStack.isItemEqual(input_1) && input_1.getCount() == input_1.getMaxStackSize())
+						{
+							if(index >= 4 && index <= 30)
+							{
+								if(!this.mergeItemStack(grabStack, 31, 40, false)) 
+								{
+									return ItemStack.EMPTY;
+								}
+							}
+							else if(index >= 30 && index <= 39)
+							{
+								if(!this.mergeItemStack(grabStack, 4, 31, false))
+								{
+									return ItemStack.EMPTY;
+								}
+							}
+						}
+					}
+					else if(inputSlot_1.getStack().isEmpty())
+					{
+						if(!SinteringFurnaceRecipes.getInstance().getSinteringResult(grabStack, input_0).isEmpty())
+						{
+							if(!this.mergeItemStack(grabStack, 1, 2, false)) 
+							{
+								return ItemStack.EMPTY;
+							}
+						}
+						else if(grabStack.isItemEqual(input_0) && input_0.getCount() < input_0.getMaxStackSize())
+						{
+							if(!this.mergeItemStack(grabStack, 0, 1, false)) 
+							{
+								return ItemStack.EMPTY;
+							}
+						}
+						else if(grabStack.isItemEqual(input_0) && input_0.getCount() == input_0.getMaxStackSize())
+						{
+							if(index >= 4 && index <= 30)
+							{
+								if(!this.mergeItemStack(grabStack, 31, 40, false)) 
+								{
+									return ItemStack.EMPTY;
+								}
+							}
+							else if(index >= 30 && index <= 39)
+							{
+								if(!this.mergeItemStack(grabStack, 4, 31, false))
+								{
+									return ItemStack.EMPTY;
+								}
 							}
 						}
 					}
 					else
 					{
-						if(SinteringFurnaceRecipes.getInstance().isValidRecipeItem(stack1))
+						if(grabStack.isItemEqual(input_1) && input_1.getCount() < input_1.getMaxStackSize())
 						{
-							if(!SinteringFurnaceRecipes.getInstance().getSinteringResult(stack1, stack2).isEmpty())
+							if(!this.mergeItemStack(grabStack, 1, 2, false)) 
 							{
-								if(!this.mergeItemStack(stack1, 1, 2, false)) 
+								return ItemStack.EMPTY;
+							}
+						}
+						else if(grabStack.isItemEqual(input_1) && input_1.getCount() == input_1.getMaxStackSize())
+						{
+							if(index >= 4 && index <= 30)
+							{
+								if(!this.mergeItemStack(grabStack, 31, 40, false)) 
 								{
 									return ItemStack.EMPTY;
 								}
 							}
-							else if(stack1.isItemEqual(stack2))
+							else if(index >= 30 && index <= 39)
 							{
-								if(!this.mergeItemStack(stack1, 0, 1, false)) 
+								if(!this.mergeItemStack(grabStack, 4, 31, false))
 								{
 									return ItemStack.EMPTY;
 								}
 							}
 						}
-						else if(TileEntitySinteringFurnace.isItemFuel(stack1))
+						else if(grabStack.isItemEqual(input_0) && input_0.getCount() < input_0.getMaxStackSize())
 						{
-							if(!this.mergeItemStack(stack1, 2, 3, false)) 
+							if(!this.mergeItemStack(grabStack, 0, 1, false)) 
+							{
+								return ItemStack.EMPTY;
+							}
+						}
+						else if(grabStack.isItemEqual(input_0) && input_0.getCount() == input_0.getMaxStackSize())
+						{
+							if(index >= 4 && index <= 30)
+							{
+								if(!this.mergeItemStack(grabStack, 31, 40, false)) 
+								{
+									return ItemStack.EMPTY;
+								}
+							}
+							else if(index >= 30 && index <= 39)
+							{
+								if(!this.mergeItemStack(grabStack, 4, 31, false))
+								{
+									return ItemStack.EMPTY;
+								}
+							}
+						}
+					}
+				}
+				else if(TileEntitySinteringFurnace.isItemFuel(grabStack))
+				{
+					if(fuelSlot.getStack().isEmpty())
+					{
+						if(!this.mergeItemStack(grabStack, 2, 3, false)) 
+						{
+							return ItemStack.EMPTY;
+						}
+					}
+					else if(grabStack.isItemEqual(fuel) && fuel.getCount() < fuel.getMaxStackSize())
+					{
+						if(!this.mergeItemStack(grabStack, 2, 3, false)) 
+						{
+							return ItemStack.EMPTY;
+						}
+					}
+					else if(grabStack.isItemEqual(fuel) && fuel.getCount() == fuel.getMaxStackSize())
+					{
+						if(index >= 4 && index <= 30)
+						{
+							if(!this.mergeItemStack(grabStack, 31, 40, false)) 
+							{
+								return ItemStack.EMPTY;
+							}
+						}
+						else if(index >= 30 && index <= 39)
+						{
+							if(!this.mergeItemStack(grabStack, 4, 31, false))
 							{
 								return ItemStack.EMPTY;
 							}
 						}
 					}
 				}
-				else if(SinteringFurnaceRecipes.getInstance().isValidRecipeItem(stack1))
+				else if(index >= 4 && index <= 30)
 				{
-					if(!this.mergeItemStack(stack1, 0, 2, false)) 
+					if(!this.mergeItemStack(grabStack, 31, 40, false)) 
 					{
 						return ItemStack.EMPTY;
 					}
 				}
-				else if(TileEntitySinteringFurnace.isItemFuel(stack1))
+				else if(index >= 30 && index <= 39)
 				{
-					if(!this.mergeItemStack(stack1, 2, 3, false)) 
+					if(!this.mergeItemStack(grabStack, 4, 31, false))
 					{
 						return ItemStack.EMPTY;
 					}
 				}
-				else if(index >= 4 && index < 31)
-				{
-					if(!this.mergeItemStack(stack1, 31, 40, true)) 
-					{
-						return ItemStack.EMPTY;
-					}
-				}
-				else if(index >= 31 && index < 40)
-				{
-					if(!this.mergeItemStack(stack1, 4, 31, false))
-					{
-						return ItemStack.EMPTY;
-					}
-				}
-			} 
-			else if(!this.mergeItemStack(stack1, 4, 40, false)) 
+			}
+			else if(!this.mergeItemStack(grabStack, 4, 40, false)) 
 			{
 				return ItemStack.EMPTY;
 			}
 			
-			if(stack1.isEmpty())
+			if(grabStack.isEmpty())
 			{
 				slot.putStack(ItemStack.EMPTY);
 			}
@@ -218,8 +295,8 @@ public class ContainerSinteringFurnace extends Container
 			{
 				slot.onSlotChanged();
 			}
-			if(stack1.getCount() == stack.getCount()) return ItemStack.EMPTY;
-			slot.onTake(playerIn, stack1);
+			if(grabStack.getCount() == stack.getCount()) return ItemStack.EMPTY;
+			slot.onTake(playerIn, grabStack);
 		}
 		return stack;
 	}

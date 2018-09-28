@@ -8,8 +8,9 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.SlotItemHandler;
+import pjc21.mod.objects.blocks.slots.SlotGlowstoneGenerator;
 import pjc21.mod.objects.blocks.tileentities.TileEntityGlowstoneGenerator;
+import pjc21.mod.objects.blocks.tileentities.TileEntitySinteringFurnace;
 
 
 public class ContainerGlowstoneGenerator extends Container
@@ -22,7 +23,7 @@ public class ContainerGlowstoneGenerator extends Container
 		this.tileentity = tileentity;
 		IItemHandler handler = tileentity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
 		
-		this.addSlotToContainer(new SlotItemHandler(handler, 0, 80, 33));
+		this.addSlotToContainer(new SlotGlowstoneGenerator(handler, 0, 80, 33));
 		
 		for(int y = 0; y < 3; y++)
 		{
@@ -74,27 +75,84 @@ public class ContainerGlowstoneGenerator extends Container
 		
 		if(slot != null && slot.getHasStack())
 		{
-			ItemStack stack1 = slot.getStack();
-			stack = stack1.copy();
+			ItemStack grabStack = slot.getStack();
+			stack = grabStack.copy();
 			
-			if(index >= 0 && index < 27)
+			if(index == 0)
 			{
-				if(!this.mergeItemStack(stack1, 27, 36, false)) return ItemStack.EMPTY;
+				if(!this.mergeItemStack(grabStack, 1, 36, false)) return ItemStack.EMPTY;
+				slot.onSlotChange(grabStack, stack);
 			}
-			else if(index >= 27 && index < 36)
+			else if(index != 0)
 			{
-				if(!this.mergeItemStack(stack1, 0, 27, false)) return ItemStack.EMPTY;
+				Slot fuelSlot = (Slot)this.inventorySlots.get(0);
+				ItemStack fuel = fuelSlot.getStack();
+				
+				if(TileEntityGlowstoneGenerator.isItemFuel(grabStack))
+				{
+					if(fuelSlot.getStack().isEmpty())
+					{
+						if(!this.mergeItemStack(grabStack, 0, 1, false)) 
+						{
+							return ItemStack.EMPTY;
+						}
+					}
+					else if(grabStack.isItemEqual(fuel) && fuel.getCount() < fuel.getMaxStackSize())
+					{
+						if(!this.mergeItemStack(grabStack, 0, 1, false)) 
+						{
+							return ItemStack.EMPTY;
+						}
+					}
+					else if(grabStack.isItemEqual(fuel) && fuel.getCount() == fuel.getMaxStackSize())
+					{
+						if(index >= 1 && index <= 27)
+						{
+							if(!this.mergeItemStack(grabStack, 28, 37, false))
+							{
+								return ItemStack.EMPTY;
+							}
+						}
+						else if(index >= 27 && index <= 36)
+						{
+							if(!this.mergeItemStack(grabStack, 1, 28, false)) 
+							{
+								return ItemStack.EMPTY;
+							}
+						}
+					}
+				}
+				else if(index >= 1 && index <= 27)
+				{
+					if(!this.mergeItemStack(grabStack, 28, 37, false))
+					{
+						return ItemStack.EMPTY;
+					}
+				}
+				else if(index >= 27 && index <= 36)
+				{
+					if(!this.mergeItemStack(grabStack, 1, 28, false)) 
+					{
+						return ItemStack.EMPTY;
+					}
+				}
 			}
-			else if(!this.mergeItemStack(stack1, 0, 36, false))
+			else if(!this.mergeItemStack(grabStack, 1, 37, false))
 			{
 				return ItemStack.EMPTY;
 			}
 			
-			if(stack1.isEmpty()) slot.putStack(ItemStack.EMPTY);
-			else slot.onSlotChanged();
+			if(grabStack.isEmpty())
+			{
+				slot.putStack(ItemStack.EMPTY);
+			}
+			else 
+			{
+				slot.onSlotChanged();
+			}
 			
-			if(stack1.getCount() == stack.getCount()) return ItemStack.EMPTY;
-			slot.onTake(playerIn, stack1);
+			if(grabStack.getCount() == stack.getCount()) return ItemStack.EMPTY;
+			slot.onTake(playerIn, grabStack);
 		}
 		
 		return stack;
