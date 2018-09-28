@@ -38,6 +38,8 @@ public class BlockElectricSinteringFurnace extends BlockBase
 	{
 		super(name, Material.IRON, Main.PAULSTAB);
 		setSoundType(SoundType.METAL);
+		setResistance(3.0f);
+		setHardness(3.5f);
 		this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(BURNING, false));
 	}
 	
@@ -60,7 +62,7 @@ public class BlockElectricSinteringFurnace extends BlockBase
 	@Override
 	public Item getItemDropped(IBlockState state, Random rand, int fortune) 
 	{
-		return null;  //Item.getItemFromBlock(BlockInit.ELECTRIC_SINTERING_FURNACE);
+		return null;
 	}
 	
 	@Override
@@ -68,6 +70,18 @@ public class BlockElectricSinteringFurnace extends BlockBase
 	{
 		return new ItemStack(BlockInit.ELECTRIC_SINTERING_FURNACE);
 	}
+	
+	@Override
+	public void onBlockHarvested(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player)
+    {
+		if(!worldIn.isRemote)
+		{
+			if(!player.isCreative())
+			{
+				worldIn.spawnEntity(new EntityItem(worldIn, pos.getX(), pos.getY(), pos.getZ(), this.getItem(worldIn, pos, state)));
+			}
+		}
+    }
 	
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) 
@@ -150,7 +164,6 @@ public class BlockElectricSinteringFurnace extends BlockBase
 		worldIn.spawnEntity(new EntityItem(worldIn, pos.getX(), pos.getY(), pos.getZ(), tileentity.handler.getStackInSlot(0)));
 		worldIn.spawnEntity(new EntityItem(worldIn, pos.getX(), pos.getY(), pos.getZ(), tileentity.handler.getStackInSlot(1)));
 		worldIn.spawnEntity(new EntityItem(worldIn, pos.getX(), pos.getY(), pos.getZ(), tileentity.handler.getStackInSlot(2)));
-		worldIn.spawnEntity(new EntityItem(worldIn, pos.getX(), pos.getY(), pos.getZ(), this.getItem(worldIn, pos, state)));
 		super.breakBlock(worldIn, pos, state);
 	}
 	
@@ -187,7 +200,7 @@ public class BlockElectricSinteringFurnace extends BlockBase
 	}
 	
 	@Override
-	public int getMetaFromState(IBlockState state) 
+	public int getMetaFromState(IBlockState state)
 	{
 		return ((EnumFacing)state.getValue(FACING)).getIndex();
 	}
