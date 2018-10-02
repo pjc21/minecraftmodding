@@ -5,8 +5,6 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.registries.IForgeRegistryEntry;
-import pjc21.mod.init.BlockInit;
 
 public class FluidBase extends Fluid 
 {
