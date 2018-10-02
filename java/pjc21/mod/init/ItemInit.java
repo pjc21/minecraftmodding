@@ -11,6 +11,7 @@ import net.minecraft.item.ItemArmor.ArmorMaterial;
 import net.minecraftforge.common.util.EnumHelper;
 import pjc21.mod.objects.armor.UniKittyArmor;
 import pjc21.mod.objects.items.ItemBase;
+import pjc21.mod.objects.items.ItemEnergyMeter;
 import pjc21.mod.objects.items.food.ItemCustomFood;
 import pjc21.mod.objects.items.food.ItemSeedRice;
 import pjc21.mod.objects.tools.StaffFire;
@@ -21,10 +22,11 @@ import pjc21.mod.objects.tools.ToolShovel;
 import pjc21.mod.objects.tools.ToolSword;
 import pjc21.mod.util.Reference;
 
+//@ObjectHolder(Reference.MODID)
 public class ItemInit 
 {
 	public static final List<Item> ITEMS = new ArrayList<Item>();
-
+	
 	//Material
 	public static final ToolMaterial TOOL_COPPER = EnumHelper.addToolMaterial("tool_copper", 2, 180, 5.0F, 1.5F, 5);
 	public static final ArmorMaterial ARMOR_UNIKITTY = EnumHelper.addArmorMaterial("armor_unikitty", Reference.MODID + ":unikitty", 0, new int[]{6, 8, 8, 6}, 50, SoundEvents.ITEM_ARMOR_EQUIP_IRON, 2.0F);
@@ -51,6 +53,8 @@ public class ItemInit
 	public static final Item UNIKITTY_HORN = new ItemBase("unikitty_horn");
 	public static final Item BLUE_CRYSTAL = new ItemBase("blue_crystal");
 	
+	public static final Item ENERGY_METER = new ItemEnergyMeter("energy_meter");
+	
 	public static final Item STAFF_FIRE = new StaffFire("staff_fire");
 		
 	//Foods
@@ -73,10 +77,11 @@ public class ItemInit
 	public static final Item SHOVEL_COPPER = new ToolShovel("shovel_copper", TOOL_COPPER);
 	public static final Item SWORD_COPPER = new ToolSword("sword_copper", TOOL_COPPER);
 	
+	
+	
 	//Armor
 	public static final Item HELMET_UNIKITTY = new UniKittyArmor("helmet_unikitty", ARMOR_UNIKITTY, 1, EntityEquipmentSlot.HEAD);
 	public static final Item CHESTPLATE_UNIKITTY = new UniKittyArmor("chestplate_unikitty", ARMOR_UNIKITTY, 1, EntityEquipmentSlot.CHEST);
 	public static final Item LEGGINGS_UNIKITTY = new UniKittyArmor("leggings_unikitty", ARMOR_UNIKITTY, 2, EntityEquipmentSlot.LEGS);
 	public static final Item BOOTS_UNIKITTY = new UniKittyArmor("boots_unikitty", ARMOR_UNIKITTY, 1, EntityEquipmentSlot.FEET);
-	
 }
