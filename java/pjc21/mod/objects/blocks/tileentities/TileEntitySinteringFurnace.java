@@ -13,15 +13,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.item.ItemTool;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
@@ -30,7 +27,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
-import pjc21.mod.objects.blocks.BlockElectricSinteringFurnace;
 import pjc21.mod.objects.blocks.BlockSinteringFurnace;
 import pjc21.mod.objects.blocks.recipes.SinteringFurnaceRecipes;
 
@@ -46,9 +42,7 @@ public class TileEntitySinteringFurnace extends TileEntity implements ITickable
 	};
 	
 	private String customName;
-	private int burnTime;
-	private int currentBurnTime;
-	private int cookTime;
+	private int burnTime, cookTime, currentBurnTime, totalItemBurnTime;
 	private int totalCookTime = 200;
 	private boolean lit;
 	
@@ -89,6 +83,8 @@ public class TileEntitySinteringFurnace extends TileEntity implements ITickable
 			flag1 = true;
 		}
 
+		burnTimeRemaining();
+		
 		ItemStack[] inputs = new ItemStack[] {handler.getStackInSlot(0), handler.getStackInSlot(1)};
 		ItemStack fuel = this.handler.getStackInSlot(2);
 
@@ -236,7 +232,35 @@ public class TileEntitySinteringFurnace extends TileEntity implements ITickable
 			return GameRegistry.getFuelValue(fuel);
 		}
 	}
-		
+	
+	public void burnTimeRemaining()
+	{
+		ItemStack itemstack = this.handler.getStackInSlot(2);
+		int burnTimeRemaining;
+
+		if(itemstack.isEmpty())
+		{
+			if(this.isBurning())
+			{
+				burnTimeRemaining = (this.burnTime / 20);
+				this.totalItemBurnTime = burnTimeRemaining;
+			}
+			else
+			{
+				burnTimeRemaining = 0;
+				this.totalItemBurnTime = burnTimeRemaining;
+			}
+		}
+		else
+		{
+			int fuelAmount = itemstack.getCount();
+			int burnTimePerItem = getItemBurnTime(itemstack);
+			
+			burnTimeRemaining = ((burnTimePerItem * fuelAmount) + this.burnTime) / 20;
+			this.totalItemBurnTime = burnTimeRemaining;
+		}
+	}
+	
 	@Override
 	public boolean hasCapability(Capability<?> capability, EnumFacing facing) 
 	{
@@ -348,6 +372,8 @@ public class TileEntitySinteringFurnace extends TileEntity implements ITickable
 			return this.cookTime;
 		case 3:
 			return this.totalCookTime;
+		case 4:
+			return this.totalItemBurnTime;
 		default:
 			return 0;
 		}
@@ -368,6 +394,9 @@ public class TileEntitySinteringFurnace extends TileEntity implements ITickable
 			break;
 		case 3:
 			this.totalCookTime = value;
+			break;
+		case 4:
+			this.totalItemBurnTime = value;
 		}
 	}
 }

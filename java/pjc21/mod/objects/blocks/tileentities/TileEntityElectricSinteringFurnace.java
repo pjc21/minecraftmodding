@@ -313,8 +313,6 @@ public class TileEntityElectricSinteringFurnace extends TileEntity implements IT
 			return this.cookTime;
 		case 1:
 			return this.energy;
-		case 2:
-			return this.storage.getEnergyStored();
 		default:
 			return 0;
 		}
@@ -329,8 +327,6 @@ public class TileEntityElectricSinteringFurnace extends TileEntity implements IT
 			break;
 		case 1:
 			this.energy = value;
-		case 2:
-			this.storage.setEnergyStored(value);
 		}
 	}
 }
