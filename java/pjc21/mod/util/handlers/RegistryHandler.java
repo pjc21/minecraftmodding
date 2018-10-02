@@ -12,21 +12,17 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.registries.IForgeRegistry;
 import pjc21.mod.Main;
 import pjc21.mod.commands.CommandDimensionTeleport;
 import pjc21.mod.init.BiomeInit;
 import pjc21.mod.init.BlockInit;
 import pjc21.mod.init.DimensionInit;
 import pjc21.mod.init.EntityInit;
-import pjc21.mod.init.FluidInit;
 import pjc21.mod.init.ItemInit;
 import pjc21.mod.init.PotionInit;
 import pjc21.mod.init.RecipesInit;
 import pjc21.mod.objects.blocks.animation.RenderCopperChest;
 import pjc21.mod.objects.blocks.tileentities.TileEntityCopperChest;
-import pjc21.mod.objects.fluids.BlockFluidOil;
-import pjc21.mod.objects.fluids.FluidMaterials;
 import pjc21.mod.util.interfaces.IHasModel;
 import pjc21.mod.world.gen.WorldGenCustomOres;
 import pjc21.mod.world.gen.WorldGenCustomStructures;
@@ -47,9 +43,6 @@ public class RegistryHandler
 	@SubscribeEvent
 	public static void onBlockRegister(RegistryEvent.Register<Block> event)
 	{
-		final IForgeRegistry<Block> registry = event.getRegistry();
-		event.getRegistry().register(new BlockFluidOil("oil", FluidInit.OIL, FluidMaterials.OIL));
-		
 		event.getRegistry().registerAll(BlockInit.BLOCKS.toArray(new Block[0]));
 		TileEntityHandler.registerTileEntities();
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityCopperChest.class, new RenderCopperChest());
@@ -106,8 +99,7 @@ public class RegistryHandler
 
 		BiomeInit.registerBiomes();
 		DimensionInit.registerDimension();
-		System.out.println("Fluid Getting Registed");
-		FluidInit.registerFluids();
+		FluidHandler.registerFluids();
 	}
 	
 	public static void initRegistries()
@@ -123,6 +115,7 @@ public class RegistryHandler
 	{
 		WorldType COPPER = new WorldTypeCopper();
 		WorldType CUSTOM = new WorldTypeCustom();
+		
 	}
 	
 	public static void serverRegistries(FMLServerStartingEvent event)
