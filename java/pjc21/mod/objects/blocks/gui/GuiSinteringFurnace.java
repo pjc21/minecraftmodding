@@ -27,6 +27,10 @@ public class GuiSinteringFurnace extends GuiContainer
 		String tileName = this.tileentity.getDisplayName().getUnformattedText();
 		this.fontRenderer.drawString(tileName, (this.xSize / 2 - this.fontRenderer.getStringWidth(tileName) / 2) + 3, 6, 4210752);
 		this.fontRenderer.drawString(this.player.getDisplayName().getUnformattedText(), 6, this.ySize - 96 + 2, 4210752);
+
+		int totalBurnTime = this.tileentity.getField(4);
+		String burnTimeRemaining = String.format("%02d:%02d:%02ds", totalBurnTime / 3600, totalBurnTime % 3600 / 60, totalBurnTime % 60);
+		this.fontRenderer.drawString(burnTimeRemaining, 100, 72, 4210752);
 	}
 	
 	@Override
