@@ -1,5 +1,7 @@
 package pjc21.mod.objects.blocks.container;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
@@ -19,7 +21,7 @@ import pjc21.mod.objects.blocks.tileentities.TileEntitySinteringFurnace;
 public class ContainerSinteringFurnace extends Container
 {
 	private final TileEntitySinteringFurnace tileentity;
-	private int cookTime, totalCookTime, burnTime, currentBurnTime;
+	private int cookTime, totalCookTime, burnTime, currentBurnTime, totalItemBurnTime;
 	
 	public ContainerSinteringFurnace(InventoryPlayer player, TileEntitySinteringFurnace tileentity) 
 	{
@@ -71,12 +73,14 @@ public class ContainerSinteringFurnace extends Container
 			if(this.burnTime != this.tileentity.getField(0)) listener.sendWindowProperty(this, 0, this.tileentity.getField(0));
 			if(this.currentBurnTime != this.tileentity.getField(1)) listener.sendWindowProperty(this, 1, this.tileentity.getField(1));
 			if(this.totalCookTime != this.tileentity.getField(3)) listener.sendWindowProperty(this, 3, this.tileentity.getField(3));
+			if(this.totalItemBurnTime != this.tileentity.getField(4)) listener.sendWindowProperty(this, 4, this.tileentity.getField(4));
 		}
 		
 		this.cookTime = this.tileentity.getField(2);
 		this.burnTime = this.tileentity.getField(0);
 		this.currentBurnTime = this.tileentity.getField(1);
 		this.totalCookTime = this.tileentity.getField(3);
+		this.totalItemBurnTime = this.tileentity.getField(4);
 	}
 
 	@Override
@@ -108,42 +112,38 @@ public class ContainerSinteringFurnace extends Container
 				{
 					if(inputSlot_0.getStack().isEmpty() && inputSlot_1.getStack().isEmpty())
 					{
-						if(!this.mergeItemStack(grabStack, 0, 2, false)) 
-						{
-							return ItemStack.EMPTY;
-						}
+						if(!this.mergeItemStack(grabStack, 0, 2, false)) return ItemStack.EMPTY;
 					}
 					else if(inputSlot_0.getStack().isEmpty())
 					{
 						if(!SinteringFurnaceRecipes.getInstance().getSinteringResult(grabStack, input_1).isEmpty())
 						{
-							if(!this.mergeItemStack(grabStack, 0, 1, false)) 
-							{
-								return ItemStack.EMPTY;
-							}
+							if(!this.mergeItemStack(grabStack, 0, 1, false)) return ItemStack.EMPTY;
 						}
-						else if(grabStack.isItemEqual(input_1) && input_1.getCount() < input_1.getMaxStackSize())
+						else if(SinteringFurnaceRecipes.getInstance().getSinteringResult(grabStack, input_1).isEmpty())
 						{
-							if(!this.mergeItemStack(grabStack, 1, 2, false)) 
+							if(grabStack.isItemEqual(input_1) && input_1.getCount() < input_1.getMaxStackSize())
 							{
-								return ItemStack.EMPTY;
+								if(!this.mergeItemStack(grabStack, 1, 2, false)) return ItemStack.EMPTY;
 							}
-						}
-						else if(grabStack.isItemEqual(input_1) && input_1.getCount() == input_1.getMaxStackSize())
-						{
-							if(index >= 4 && index <= 30)
+							else if(grabStack.isItemEqual(input_1) && input_1.getCount() == input_1.getMaxStackSize())
 							{
-								if(!this.mergeItemStack(grabStack, 31, 40, false)) 
+								if(index >= 4 && index <= 30)
 								{
-									return ItemStack.EMPTY;
+									if(!this.mergeItemStack(grabStack, 31, 40, false)) return ItemStack.EMPTY;
 								}
+								else if(index >= 30 && index <= 39)
+								{
+									if(!this.mergeItemStack(grabStack, 4, 31, false)) return ItemStack.EMPTY;
+								}
+							}
+							else if(index >= 4 && index <= 30)
+							{
+								if(!this.mergeItemStack(grabStack, 31, 40, false)) return ItemStack.EMPTY;
 							}
 							else if(index >= 30 && index <= 39)
 							{
-								if(!this.mergeItemStack(grabStack, 4, 31, false))
-								{
-									return ItemStack.EMPTY;
-								}
+								if(!this.mergeItemStack(grabStack, 4, 31, false)) return ItemStack.EMPTY;
 							}
 						}
 					}
@@ -151,33 +151,32 @@ public class ContainerSinteringFurnace extends Container
 					{
 						if(!SinteringFurnaceRecipes.getInstance().getSinteringResult(grabStack, input_0).isEmpty())
 						{
-							if(!this.mergeItemStack(grabStack, 1, 2, false)) 
-							{
-								return ItemStack.EMPTY;
-							}
+							if(!this.mergeItemStack(grabStack, 1, 2, false)) return ItemStack.EMPTY;
 						}
-						else if(grabStack.isItemEqual(input_0) && input_0.getCount() < input_0.getMaxStackSize())
+						else if(SinteringFurnaceRecipes.getInstance().getSinteringResult(grabStack, input_0).isEmpty())
 						{
-							if(!this.mergeItemStack(grabStack, 0, 1, false)) 
+							if(grabStack.isItemEqual(input_0) && input_0.getCount() < input_0.getMaxStackSize())
 							{
-								return ItemStack.EMPTY;
+								if(!this.mergeItemStack(grabStack, 0, 1, false)) return ItemStack.EMPTY;
 							}
-						}
-						else if(grabStack.isItemEqual(input_0) && input_0.getCount() == input_0.getMaxStackSize())
-						{
-							if(index >= 4 && index <= 30)
+							else if(grabStack.isItemEqual(input_0) && input_0.getCount() == input_0.getMaxStackSize())
 							{
-								if(!this.mergeItemStack(grabStack, 31, 40, false)) 
+								if(index >= 4 && index <= 30)
 								{
-									return ItemStack.EMPTY;
+									if(!this.mergeItemStack(grabStack, 31, 40, false)) return ItemStack.EMPTY;
 								}
+								else if(index >= 30 && index <= 39)
+								{
+									if(!this.mergeItemStack(grabStack, 4, 31, false)) return ItemStack.EMPTY;
+								}
+							}
+							else if(index >= 4 && index <= 30)
+							{
+								if(!this.mergeItemStack(grabStack, 31, 40, false)) return ItemStack.EMPTY;
 							}
 							else if(index >= 30 && index <= 39)
 							{
-								if(!this.mergeItemStack(grabStack, 4, 31, false))
-								{
-									return ItemStack.EMPTY;
-								}
+								if(!this.mergeItemStack(grabStack, 4, 31, false)) return ItemStack.EMPTY;
 							}
 						}
 					}
@@ -185,50 +184,43 @@ public class ContainerSinteringFurnace extends Container
 					{
 						if(grabStack.isItemEqual(input_1) && input_1.getCount() < input_1.getMaxStackSize())
 						{
-							if(!this.mergeItemStack(grabStack, 1, 2, false)) 
-							{
-								return ItemStack.EMPTY;
-							}
+							if(!this.mergeItemStack(grabStack, 1, 2, false)) return ItemStack.EMPTY;
 						}
 						else if(grabStack.isItemEqual(input_1) && input_1.getCount() == input_1.getMaxStackSize())
 						{
 							if(index >= 4 && index <= 30)
 							{
-								if(!this.mergeItemStack(grabStack, 31, 40, false)) 
-								{
-									return ItemStack.EMPTY;
-								}
+								if(!this.mergeItemStack(grabStack, 31, 40, false)) return ItemStack.EMPTY;
 							}
 							else if(index >= 30 && index <= 39)
 							{
-								if(!this.mergeItemStack(grabStack, 4, 31, false))
-								{
-									return ItemStack.EMPTY;
-								}
+								if(!this.mergeItemStack(grabStack, 4, 31, false)) return ItemStack.EMPTY;
 							}
 						}
 						else if(grabStack.isItemEqual(input_0) && input_0.getCount() < input_0.getMaxStackSize())
 						{
-							if(!this.mergeItemStack(grabStack, 0, 1, false)) 
-							{
-								return ItemStack.EMPTY;
-							}
+							if(!this.mergeItemStack(grabStack, 0, 1, false)) return ItemStack.EMPTY;
 						}
 						else if(grabStack.isItemEqual(input_0) && input_0.getCount() == input_0.getMaxStackSize())
 						{
 							if(index >= 4 && index <= 30)
 							{
-								if(!this.mergeItemStack(grabStack, 31, 40, false)) 
-								{
-									return ItemStack.EMPTY;
-								}
+								if(!this.mergeItemStack(grabStack, 31, 40, false)) return ItemStack.EMPTY;
 							}
 							else if(index >= 30 && index <= 39)
 							{
-								if(!this.mergeItemStack(grabStack, 4, 31, false))
-								{
-									return ItemStack.EMPTY;
-								}
+								if(!this.mergeItemStack(grabStack, 4, 31, false)) return ItemStack.EMPTY;
+							}
+						}
+						else
+						{
+							if(index >= 4 && index <= 30)
+							{
+								if(!this.mergeItemStack(grabStack, 31, 40, false)) return ItemStack.EMPTY;
+							}
+							else if(index >= 30 && index <= 39)
+							{
+								if(!this.mergeItemStack(grabStack, 4, 31, false)) return ItemStack.EMPTY;
 							}
 						}
 					}
@@ -237,55 +229,34 @@ public class ContainerSinteringFurnace extends Container
 				{
 					if(fuelSlot.getStack().isEmpty())
 					{
-						if(!this.mergeItemStack(grabStack, 2, 3, false)) 
-						{
-							return ItemStack.EMPTY;
-						}
+						if(!this.mergeItemStack(grabStack, 2, 3, false)) return ItemStack.EMPTY;
 					}
 					else if(grabStack.isItemEqual(fuel) && fuel.getCount() < fuel.getMaxStackSize())
 					{
-						if(!this.mergeItemStack(grabStack, 2, 3, false)) 
-						{
-							return ItemStack.EMPTY;
-						}
+						if(!this.mergeItemStack(grabStack, 2, 3, false)) return ItemStack.EMPTY;
 					}
 					else if(grabStack.isItemEqual(fuel) && fuel.getCount() == fuel.getMaxStackSize())
 					{
 						if(index >= 4 && index <= 30)
 						{
-							if(!this.mergeItemStack(grabStack, 31, 40, false)) 
-							{
-								return ItemStack.EMPTY;
-							}
+							if(!this.mergeItemStack(grabStack, 31, 40, false)) return ItemStack.EMPTY;
 						}
 						else if(index >= 30 && index <= 39)
 						{
-							if(!this.mergeItemStack(grabStack, 4, 31, false))
-							{
-								return ItemStack.EMPTY;
-							}
+							if(!this.mergeItemStack(grabStack, 4, 31, false)) return ItemStack.EMPTY;
 						}
 					}
 				}
 				else if(index >= 4 && index <= 30)
 				{
-					if(!this.mergeItemStack(grabStack, 31, 40, false)) 
-					{
-						return ItemStack.EMPTY;
-					}
+					if(!this.mergeItemStack(grabStack, 31, 40, false)) return ItemStack.EMPTY;
 				}
 				else if(index >= 30 && index <= 39)
 				{
-					if(!this.mergeItemStack(grabStack, 4, 31, false))
-					{
-						return ItemStack.EMPTY;
-					}
+					if(!this.mergeItemStack(grabStack, 4, 31, false)) return ItemStack.EMPTY;
 				}
 			}
-			else if(!this.mergeItemStack(grabStack, 4, 40, false)) 
-			{
-				return ItemStack.EMPTY;
-			}
+			else if(!this.mergeItemStack(grabStack, 4, 40, false)) return ItemStack.EMPTY;
 			
 			if(grabStack.isEmpty())
 			{
@@ -300,4 +271,9 @@ public class ContainerSinteringFurnace extends Container
 		}
 		return stack;
 	}
+	
+	
+	
+	
+	
 }
