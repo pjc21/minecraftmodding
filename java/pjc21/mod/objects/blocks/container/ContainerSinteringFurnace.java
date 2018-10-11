@@ -1,6 +1,6 @@
 package pjc21.mod.objects.blocks.container;
 
-import javax.annotation.Nullable;
+import java.util.ListIterator;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -23,6 +23,9 @@ public class ContainerSinteringFurnace extends Container
 	private final TileEntitySinteringFurnace tileentity;
 	private int cookTime, totalCookTime, burnTime, currentBurnTime, totalItemBurnTime;
 	
+	private static int[][] SLOTS_IN_TABS = {{0, 1, 2, 3}};
+	private static int[][] VISABLE_X = {{26, 56, 56, 116}};
+	
 	public ContainerSinteringFurnace(InventoryPlayer player, TileEntitySinteringFurnace tileentity) 
 	{
 		this.tileentity = tileentity;
@@ -44,6 +47,29 @@ public class ContainerSinteringFurnace extends Container
 		for(int x = 0; x < 9; x++)
 		{
 			this.addSlotToContainer(new Slot(player, x, 8 + x * 18, 142));
+		}
+	}
+
+	protected void hideSlots()
+	{
+		ListIterator<Slot> slots = inventorySlots.listIterator(4);
+		
+		while(slots.hasPrevious())
+		{
+			Slot slot = (Slot) slots.previous();
+			slot.xPos = -1600;
+		}
+	}
+	
+	public void showSlots(int index)
+	{
+		hideSlots();
+		if(index < SLOTS_IN_TABS.length)
+		{
+			for(int i = 0; i < (SLOTS_IN_TABS[index]).length; i++)
+			{
+				((Slot)inventorySlots.get(SLOTS_IN_TABS[index][i])).xPos = VISABLE_X[index][i]; 
+			}
 		}
 	}
 	
@@ -74,6 +100,11 @@ public class ContainerSinteringFurnace extends Container
 			if(this.currentBurnTime != this.tileentity.getField(1)) listener.sendWindowProperty(this, 1, this.tileentity.getField(1));
 			if(this.totalCookTime != this.tileentity.getField(3)) listener.sendWindowProperty(this, 3, this.tileentity.getField(3));
 			if(this.totalItemBurnTime != this.tileentity.getField(4)) listener.sendWindowProperty(this, 4, this.tileentity.getField(4));
+			
+			listener.sendSlotContents(this, 0, this.tileentity.handler.getStackInSlot(0));
+			listener.sendSlotContents(this, 1, this.tileentity.handler.getStackInSlot(1));
+			listener.sendSlotContents(this, 2, this.tileentity.handler.getStackInSlot(2));
+			listener.sendSlotContents(this, 3, this.tileentity.handler.getStackInSlot(3));
 		}
 		
 		this.cookTime = this.tileentity.getField(2);
@@ -96,6 +127,7 @@ public class ContainerSinteringFurnace extends Container
 			
 			if(index == 3) 
 			{
+				slot.onTake(playerIn, grabStack); // to get exp on shift click
 				if(!this.mergeItemStack(grabStack, 4, 40, false)) return ItemStack.EMPTY;
 				slot.onSlotChange(grabStack, stack);
 			}
@@ -271,9 +303,4 @@ public class ContainerSinteringFurnace extends Container
 		}
 		return stack;
 	}
-	
-	
-	
-	
-	
 }
