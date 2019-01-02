@@ -1,4 +1,4 @@
-package pjc21.mod.objects.blocks.machines.generator;
+package pjc21.mod.objects.blocks;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -10,7 +10,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import pjc21.mod.Main;
-import pjc21.mod.objects.blocks.BlockBase;
 import pjc21.mod.objects.blocks.tileentities.TileEntityGlowstoneGenerator;
 import pjc21.mod.util.Reference;
 

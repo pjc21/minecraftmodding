@@ -1,4 +1,4 @@
-package pjc21.mod.objects.blocks.machines.miner.te;
+package pjc21.mod.objects.blocks.tileentities;
 
 import static pjc21.mod.util.helpers.NBTHelper.*;
 

@@ -1,4 +1,4 @@
-package pjc21.mod.objects.blocks.machines.miner;
+package pjc21.mod.objects.blocks;
 
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.SoundType;
@@ -7,8 +7,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import pjc21.mod.Main;
-import pjc21.mod.objects.blocks.BlockBase;
-import pjc21.mod.objects.blocks.machines.miner.te.TileEntityMiner;
+import pjc21.mod.objects.blocks.tileentities.TileEntityMiner;
 
 public class BlockMiner extends BlockBase implements ITileEntityProvider
 {

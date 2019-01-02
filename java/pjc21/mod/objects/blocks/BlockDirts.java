@@ -22,14 +22,14 @@ import pjc21.mod.Main;
 import pjc21.mod.init.BlockInit;
 import pjc21.mod.init.ItemInit;
 import pjc21.mod.objects.blocks.item.ItemBlockVariants;
-import pjc21.mod.util.handlers.DirtHandler;
+import pjc21.mod.util.handlers.EnumDirtHandler;
 import pjc21.mod.util.handlers.EnumHandler;
 import pjc21.mod.util.interfaces.IHasModel;
 import pjc21.mod.util.interfaces.IMetaName;
 
 public class BlockDirts extends Block implements IMetaName, IHasModel
 {
-	public static final PropertyEnum<DirtHandler.EnumType> VARIANT = PropertyEnum.<DirtHandler.EnumType>create("variant", DirtHandler.EnumType.class);
+	public static final PropertyEnum<EnumDirtHandler.EnumType> VARIANT = PropertyEnum.<EnumDirtHandler.EnumType>create("variant", EnumDirtHandler.EnumType.class);
 	
 	private String name;
 	
@@ -39,7 +39,7 @@ public class BlockDirts extends Block implements IMetaName, IHasModel
 		setUnlocalizedName(name);
 		setRegistryName(name);
 		setSoundType(SoundType.GROUND);
-		setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, DirtHandler.EnumType.RED));
+		setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, EnumDirtHandler.EnumType.RED));
 		setCreativeTab(Main.PAULSTAB);
 		
 		this.name = name;
@@ -51,13 +51,13 @@ public class BlockDirts extends Block implements IMetaName, IHasModel
 	@Override
 	public int damageDropped(IBlockState state) 
 	{
-		return ((DirtHandler.EnumType)state.getValue(VARIANT)).getMeta();
+		return ((EnumDirtHandler.EnumType)state.getValue(VARIANT)).getMeta();
 	}
 	
 	@Override
 	public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) 
 	{
-		for(DirtHandler.EnumType dirthandler$enumtype : DirtHandler.EnumType.values())
+		for(EnumDirtHandler.EnumType dirthandler$enumtype : EnumDirtHandler.EnumType.values())
 		{
 			items.add(new ItemStack(this, 1, dirthandler$enumtype.getMeta()));
 		}
@@ -66,13 +66,13 @@ public class BlockDirts extends Block implements IMetaName, IHasModel
 	@Override
 	public IBlockState getStateFromMeta(int meta) 
 	{
-		return this.getDefaultState().withProperty(VARIANT, DirtHandler.EnumType.byMetadata(meta));
+		return this.getDefaultState().withProperty(VARIANT, EnumDirtHandler.EnumType.byMetadata(meta));
 	}
 	
 	@Override
 	public int getMetaFromState(IBlockState state) 
 	{
-		return ((DirtHandler.EnumType)state.getValue(VARIANT)).getMeta();
+		return ((EnumDirtHandler.EnumType)state.getValue(VARIANT)).getMeta();
 	}
 	
 	@Override
@@ -90,7 +90,7 @@ public class BlockDirts extends Block implements IMetaName, IHasModel
 	@Override
 	public String getSpecialName(ItemStack stack) 
 	{
-		return EnumHandler.EnumType.values()[stack.getItemDamage()].getName();
+		return EnumDirtHandler.EnumType.values()[stack.getItemDamage()].getName();
 	}
 	
 	@Override
@@ -102,9 +102,9 @@ public class BlockDirts extends Block implements IMetaName, IHasModel
 	@Override
 	public void registerModels() 
 	{
-		for(int i = 0; i < DirtHandler.EnumType.values().length; i++)
+		for(int i = 0; i < EnumDirtHandler.EnumType.values().length; i++)
 		{
-			Main.proxy.registerVariantRenderer(Item.getItemFromBlock(this), i, "dirts_" + DirtHandler.EnumType.values()[i].getName(), "inventory");
+			Main.proxy.registerVariantRenderer(Item.getItemFromBlock(this), i, "dirts_" + EnumDirtHandler.EnumType.values()[i].getName(), "inventory");
 		}
 	}
 }

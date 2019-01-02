@@ -21,32 +21,5 @@ public class ClientProxy extends CommonProxy
 		ModelLoader.setCustomModelResourceLocation(item, meta, new ModelResourceLocation(new ResourceLocation(Reference.MODID, filename), id));
 	}
 	
-	/*@Override
-	public void registerTileEntities() 
-	{
-
-	}*/
 	
-	/*@Override
-	public void Register(Object o) 
-	{
-		if(o instanceof Block) 
-		{
-			Block toRegister = (Block) o;
-			String name = toRegister.getRegistryName().toString();
-			registerItemRenderer(Item.getItemFromBlock(toRegister), 0, name);
-		} 
-		else if (o instanceof Item) 
-		{
-			Item toRegister = (Item) o;
-			String name = toRegister.getRegistryName().toString();
-			registerItemRenderer(toRegister, 0, name);
-		} 
-		else 
-		{
-			String s = o.toString();
-			Throwable t = new Throwable(s);
-			IllegalArgumentException exeption = new IllegalArgumentException("Please give a registerable object as an Argument!!", t);
-		}
-	}*/
 }

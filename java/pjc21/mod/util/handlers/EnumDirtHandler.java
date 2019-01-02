@@ -3,14 +3,13 @@ package pjc21.mod.util.handlers;
 import net.minecraft.util.IStringSerializable;
 import pjc21.mod.util.handlers.EnumHandler.EnumType;
 
-public class DirtHandler 
+public class EnumDirtHandler 
 {
 	public static enum EnumType implements IStringSerializable
 	{
 		RED(0, "red"),
 		BLUE(1, "blue");
-		
-		
+
 		private static final EnumType[] META_LOOKUP = new EnumType[values().length];
 		private final int meta;
 		private final String name, unlocalizedName;

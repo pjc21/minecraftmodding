@@ -2,8 +2,8 @@ package pjc21.mod.util.helpers;
 
 import net.minecraft.nbt.NBTTagCompound;
 import pjc21.mod.energy.CustomEnergyStorage;
-import pjc21.mod.objects.blocks.machines.miner.te.TileEntityMiner;
 import pjc21.mod.objects.blocks.tileentities.TileEntityGlowstoneGenerator;
+import pjc21.mod.objects.blocks.tileentities.TileEntityMiner;
 
 public class NBTHelper 
 {

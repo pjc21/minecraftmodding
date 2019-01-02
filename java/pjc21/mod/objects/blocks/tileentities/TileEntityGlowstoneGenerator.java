@@ -9,6 +9,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
@@ -20,44 +21,78 @@ import pjc21.mod.energy.CustomEnergyStorage;
 
 public class TileEntityGlowstoneGenerator extends TileEntity implements ITickable
 {
-	public ItemStackHandler handler = new ItemStackHandler(1);
+	public ItemStackHandler handler = new ItemStackHandler(1)
+	{
+		@Override
+		protected void onContentsChanged(int slot) 
+		{
+			TileEntityGlowstoneGenerator.this.markDirty();
+		}
+	};
 	
 	private CustomEnergyStorage storage = new CustomEnergyStorage(100000, 1000, 1000);
 	public int energy = storage.getEnergyStored();
 	public int cookTime;
 	private String customName;
 
+	public int getEnergyStored() 
+	{
+		return this.energy; 
+	}
+	
+	public int getMaxEnergyStored() 
+	{
+		return this.storage.getMaxEnergyStored();
+	}
+	
+	private int burnEnergy()
+	{
+		return 20;
+	}
+	
+	public static boolean isItemFuel(ItemStack stack)
+	{
+		return getFuelValue(stack) > 0;
+	}
+
 	@Override
 	public void update() 
 	{
+		boolean flag = false;
+		
 		if(this.storage.canReceive())
 		{
 			if(!handler.getStackInSlot(0).isEmpty() && isItemFuel(handler.getStackInSlot(0)))
 			{
-				cookTime++;
-				if(cookTime == 25)
+				++this.cookTime;
+				
+				if(this.cookTime == 25)
 				{
-					energy += getFuelValue(handler.getStackInSlot(0));
+					cookTime = 0;
 					this.storage.receiveEnergy(getFuelValue(handler.getStackInSlot(0)), false);
+					this.energy = this.storage.getEnergyStored();
 					handler.getStackInSlot(0).shrink(1);
-					cookTime = 1;
+					flag = true;
 				}
-				this.markDirty();
 			}
+			else if(handler.getStackInSlot(0).isEmpty() && this.cookTime > 0)
+			{
+				this.cookTime = MathHelper.clamp(this.cookTime - 2, 0, 25);
+			}
+		}
+		
+		if(flag)
+		{
+			this.markDirty();
 		}
 	}
 	
-	private boolean isItemFuel(ItemStack stack)
-	{
-		return getFuelValue(stack) > 0;
-	}
-	
-	private int getFuelValue(ItemStack stack)
+	private static int getFuelValue(ItemStack stack)
 	{
 		if(stack.getItem() == Items.GLOWSTONE_DUST) return 1000;
 		else return 0;
 	}
-	
+
 	@Override
 	public <T> T getCapability(Capability<T> capability, EnumFacing facing) 
 	{
@@ -81,8 +116,8 @@ public class TileEntityGlowstoneGenerator extends TileEntity implements ITickabl
 		compound.setTag("Inventory", this.handler.serializeNBT());
 		compound.setInteger("CookTime", this.cookTime);
 		compound.setInteger("GuiEnergy", this.energy);
-		compound.setString("Name", getDisplayName().toString());
 		this.storage.writeToNBT(compound);
+		if(this.hasCustomName()) compound.setString("CustomName", this.customName);
 		return compound;
 	}
 	
@@ -93,8 +128,8 @@ public class TileEntityGlowstoneGenerator extends TileEntity implements ITickabl
 		this.handler.deserializeNBT(compound.getCompoundTag("Inventory"));
 		this.cookTime = compound.getInteger("CookTime");
 		this.energy = compound.getInteger("GuiEnergy");
-		this.customName = compound.getString("Name");
 		this.storage.readFromNBT(compound);
+		if(compound.hasKey("CustomName", 8)) this.setCustomName(compound.getString("CustomName"));
 	}
 
 	@Override
@@ -128,9 +163,19 @@ public class TileEntityGlowstoneGenerator extends TileEntity implements ITickabl
 	}*/
 	
 	@Override
-	public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newSate) 
+	public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newState) 
 	{
-		return super.shouldRefresh(world, pos, oldState, newSate);
+		return oldState != newState;
+	}
+	
+	public boolean hasCustomName() 
+	{
+		return this.customName != null && !this.customName.isEmpty();
+	}
+	
+	public void setCustomName(String customName) 
+	{
+		this.customName = customName;
 	}
 	
 	@Override
@@ -139,21 +184,11 @@ public class TileEntityGlowstoneGenerator extends TileEntity implements ITickabl
 		return new TextComponentTranslation("container.glowstone_generator");
 	}
 	
-	public int getEnergyStored() 
+	public boolean isUsableByPlayer(EntityPlayer player)
 	{
-		return this.energy; 
+		return this.world.getTileEntity(this.pos) != this ? false : player.getDistanceSq((double)this.pos.getX() + 0.5D, (double)this.pos.getY() + 0.5D, (double)this.pos.getZ() + 0.5D) <= 64.0D;
 	}
-	
-	public int getMaxEnergyStored() 
-	{
-		return this.storage.getMaxEnergyStored();
-	}
-	
-	public int getCookTime() 
-	{
-		return this.cookTime;
-	}
-	
+
 	public int getField(int id)
 	{
 		switch(id)
@@ -173,13 +208,9 @@ public class TileEntityGlowstoneGenerator extends TileEntity implements ITickabl
 		{
 		case 0:
 			this.energy = value;
+			break;
 		case 1:
 			this.cookTime = value;
 		}
-	}
-	
-	public boolean isUsableByPlayer(EntityPlayer player)
-	{
-		return this.world.getTileEntity(this.pos) != this ? false : player.getDistanceSq((double)this.pos.getX() + 0.5D, (double)this.pos.getY() + 0.5D, (double)this.pos.getZ() + 0.5D) <= 64.0D;
 	}
 }

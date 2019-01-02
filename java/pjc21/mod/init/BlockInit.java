@@ -5,25 +5,32 @@ import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraftforge.fluids.BlockFluidClassic;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import pjc21.mod.Main;
 import pjc21.mod.objects.blocks.BlockBase;
 import pjc21.mod.objects.blocks.BlockCopperChest;
 import pjc21.mod.objects.blocks.BlockDirts;
+import pjc21.mod.objects.blocks.BlockElectricSinteringFurnace;
+import pjc21.mod.objects.blocks.BlockGlowstoneGenerator;
 import pjc21.mod.objects.blocks.BlockLeaf;
 import pjc21.mod.objects.blocks.BlockLogs;
+import pjc21.mod.objects.blocks.BlockMiner;
 import pjc21.mod.objects.blocks.BlockOres;
 import pjc21.mod.objects.blocks.BlockPlank;
 import pjc21.mod.objects.blocks.BlockRicePlant;
 import pjc21.mod.objects.blocks.BlockSantaHat;
 import pjc21.mod.objects.blocks.BlockSaplings;
+import pjc21.mod.objects.blocks.BlockSinteringFurnace;
 import pjc21.mod.objects.blocks.BlockTeleporter;
-import pjc21.mod.objects.blocks.machines.generator.BlockGlowstoneGenerator;
-import pjc21.mod.objects.blocks.machines.miner.BlockMiner;
-import pjc21.mod.objects.blocks.machines.sinterer.BlockSinteringFurnace;
+import pjc21.mod.objects.fluids.BlockFluidOil;
+import pjc21.mod.objects.fluids.FluidMaterials;
 
 public class BlockInit 
 {
 	public static final List<Block> BLOCKS = new ArrayList<Block>();
+	//public static final List<Block> BLOCKFLUIDS = new ArrayList<Block>();
+	
 	
 	//Blocks
 	public static final Block BLOCK_COPPER = new BlockBase("block_copper", Material.IRON, Main.PAULSTAB);
@@ -39,6 +46,7 @@ public class BlockInit
 	public static final Block SANTA_HAT = new BlockSantaHat("santa_hat");
 	
 	public static final Block SINTERING_FURNACE = new BlockSinteringFurnace("sintering_furnace");
+	public static final Block ELECTRIC_SINTERING_FURNACE = new BlockElectricSinteringFurnace("electric_sintering_furnace");
 	public static final Block MINER = new BlockMiner("miner", Material.ROCK);
 	public static final Block GLOWSTONE_GENERATOR = new BlockGlowstoneGenerator("glowstone_generator");
 	
@@ -54,5 +62,8 @@ public class BlockInit
 	
 	//Teleport Block
 	public static final Block TELEPORT_BLOCK = new BlockTeleporter("teleport_block");
-
+	
+	//public static final Block BLOCK_FLUID_OIL = new BlockFluidOil("oil", FluidInit.OIL, FluidMaterials.OIL);
+	
+	
 }

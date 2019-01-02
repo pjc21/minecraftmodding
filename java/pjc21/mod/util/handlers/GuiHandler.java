@@ -5,14 +5,17 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.IGuiHandler;
 import pjc21.mod.objects.blocks.container.ContainerCopperChest;
+import pjc21.mod.objects.blocks.container.ContainerElectricSinteringFurnace;
 import pjc21.mod.objects.blocks.container.ContainerGlowstoneGenerator;
+import pjc21.mod.objects.blocks.container.ContainerSinteringFurnace;
 import pjc21.mod.objects.blocks.gui.GuiCopperChest;
+import pjc21.mod.objects.blocks.gui.GuiElectricSinteringFurnace;
 import pjc21.mod.objects.blocks.gui.GuiGlowstoneGenerator;
-import pjc21.mod.objects.blocks.machines.sinterer.ContainerSinteringFurnace;
-import pjc21.mod.objects.blocks.machines.sinterer.GuiSinteringFurnace;
-import pjc21.mod.objects.blocks.machines.sinterer.TileEntitySinteringFurnace;
+import pjc21.mod.objects.blocks.gui.GuiSinteringFurnace;
 import pjc21.mod.objects.blocks.tileentities.TileEntityCopperChest;
+import pjc21.mod.objects.blocks.tileentities.TileEntityElectricSinteringFurnace;
 import pjc21.mod.objects.blocks.tileentities.TileEntityGlowstoneGenerator;
+import pjc21.mod.objects.blocks.tileentities.TileEntitySinteringFurnace;
 import pjc21.mod.util.Reference;
 
 public class GuiHandler implements IGuiHandler
@@ -23,6 +26,7 @@ public class GuiHandler implements IGuiHandler
 		if(ID == Reference.GUI_SINTERING_FURNACE) return new ContainerSinteringFurnace(player.inventory, (TileEntitySinteringFurnace)world.getTileEntity(new BlockPos(x,y,z)));
 		if(ID == Reference.GUI_COPPER_CHEST) return new ContainerCopperChest(player.inventory, (TileEntityCopperChest)world.getTileEntity(new BlockPos(x,y,z)), player);
 		if(ID == Reference.GUI_GLOWSTONE_GENERATOR) return new ContainerGlowstoneGenerator(player.inventory, (TileEntityGlowstoneGenerator)world.getTileEntity(new BlockPos(x,y,z)));
+		if(ID == Reference.GUI_ELECTRIC_SINTERING_FURNACE) return new ContainerElectricSinteringFurnace(player.inventory, (TileEntityElectricSinteringFurnace)world.getTileEntity(new BlockPos(x,y,z)));
 		
 		return null;
 	}
@@ -33,6 +37,7 @@ public class GuiHandler implements IGuiHandler
 		if(ID == Reference.GUI_SINTERING_FURNACE) return new GuiSinteringFurnace(player.inventory, (TileEntitySinteringFurnace)world.getTileEntity(new BlockPos(x,y,z)));
 		if(ID == Reference.GUI_COPPER_CHEST) return new GuiCopperChest(player.inventory, (TileEntityCopperChest)world.getTileEntity(new BlockPos(x,y,z)), player);
 		if(ID == Reference.GUI_GLOWSTONE_GENERATOR) return new GuiGlowstoneGenerator(player.inventory, (TileEntityGlowstoneGenerator)world.getTileEntity(new BlockPos(x,y,z)));
+		if(ID == Reference.GUI_ELECTRIC_SINTERING_FURNACE) return new GuiElectricSinteringFurnace(player.inventory, (TileEntityElectricSinteringFurnace)world.getTileEntity(new BlockPos(x,y,z)));
 		
 		return null;
 	}

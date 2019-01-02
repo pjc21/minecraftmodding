@@ -29,9 +29,11 @@ import pjc21.mod.world.gen.WorldGenCustomStructures;
 import pjc21.mod.world.types.WorldTypeCopper;
 import pjc21.mod.world.types.WorldTypeCustom;
 
+
 @EventBusSubscriber
 public class RegistryHandler 
 {
+
 	@SubscribeEvent
 	public static void onItemRegister(RegistryEvent.Register<Item> event)
 	{
@@ -43,8 +45,6 @@ public class RegistryHandler
 	{
 		event.getRegistry().registerAll(BlockInit.BLOCKS.toArray(new Block[0]));
 		TileEntityHandler.registerTileEntities();
-		
-		//Main.proxy.registerTileEntities();
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityCopperChest.class, new RenderCopperChest());
 	}
 			
@@ -57,10 +57,6 @@ public class RegistryHandler
 			{
 				((IHasModel)item).registerModels();
 			}
-			/*else 
-			{
-				Main.proxy.Register(item);
-			}*/
 		}
 		
 		for(Block block : BlockInit.BLOCKS)
@@ -69,14 +65,9 @@ public class RegistryHandler
 			{
 				((IHasModel)block).registerModels();
 			}
-			/*else 
-			{
-				Main.proxy.Register(block);
-			}*/
+
 		}
-		
 		EntityInit.registerEntityRenders();
-		//Main.proxy.registerItemRenderer(Item.getItemFromBlock(BlockInit.COPPER_CHEST), 0, "inventory");
 	}
 	
 	@SubscribeEvent
@@ -105,10 +96,10 @@ public class RegistryHandler
 		GameRegistry.registerWorldGenerator(new WorldGenCustomOres(), 0);
 		//GameRegistry.registerWorldGenerator(new WorldGenCustomTrees(), 0);
 		GameRegistry.registerWorldGenerator(new WorldGenCustomStructures(), 0);
-		
+
 		BiomeInit.registerBiomes();
 		DimensionInit.registerDimension();
-		
+		FluidHandler.registerFluids();
 	}
 	
 	public static void initRegistries()
@@ -124,6 +115,7 @@ public class RegistryHandler
 	{
 		WorldType COPPER = new WorldTypeCopper();
 		WorldType CUSTOM = new WorldTypeCustom();
+		
 	}
 	
 	public static void serverRegistries(FMLServerStartingEvent event)

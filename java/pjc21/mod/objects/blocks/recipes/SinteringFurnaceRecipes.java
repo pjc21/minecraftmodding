@@ -1,4 +1,4 @@
-package pjc21.mod.objects.blocks.machines.sinterer;
+package pjc21.mod.objects.blocks.recipes;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -24,18 +24,17 @@ public class SinteringFurnaceRecipes
 	
 	private SinteringFurnaceRecipes() 
 	{
-		addSinteringRecipe(new ItemStack(BlockInit.BLOCK_COPPER), new ItemStack(BlockInit.ORE_OVERWORLD), new ItemStack(Blocks.ACACIA_FENCE), 5.0F);
+		addSinteringRecipe(new ItemStack(BlockInit.BLOCK_COPPER), new ItemStack(BlockInit.ORE_OVERWORLD), new ItemStack(Blocks.ANVIL), 5.0F);
 		addSinteringRecipe(new ItemStack(Blocks.ACACIA_FENCE), new ItemStack(Blocks.ACACIA_FENCE_GATE), new ItemStack(BlockInit.SINTERING_FURNACE), 5.0F);
 	}
 
-	
 	public void addSinteringRecipe(ItemStack input1, ItemStack input2, ItemStack result, float experience) 
 	{
 		if(getSinteringResult(input1, input2) != ItemStack.EMPTY) return;
 		this.smeltingList.put(input1, input2, result);
 		this.experienceList.put(result, Float.valueOf(experience));
 	}
-	
+
 	public ItemStack getSinteringResult(ItemStack input1, ItemStack input2) 
 	{
 		for(Entry<ItemStack, Map<ItemStack, ItemStack>> entry : this.smeltingList.columnMap().entrySet()) 
@@ -50,7 +49,18 @@ public class SinteringFurnaceRecipes
 					}
 				}
 			}
+			else if(this.compareItemStacks(input2, (ItemStack)entry.getKey())) 
+			{
+				for(Entry<ItemStack, ItemStack> ent : entry.getValue().entrySet()) 
+				{
+					if(this.compareItemStacks(input1, (ItemStack)ent.getKey())) 
+					{
+						return (ItemStack)ent.getValue();
+					}
+				}
+			}
 		}
+		
 		return ItemStack.EMPTY;
 	}
 	
@@ -74,5 +84,29 @@ public class SinteringFurnaceRecipes
 			}
 		}
 		return 0.0F;
-}
+	}
+	
+	public boolean isValidRecipeItem(ItemStack stack)
+	{
+		for(Entry<ItemStack, Map<ItemStack, ItemStack>> entry : this.smeltingList.columnMap().entrySet()) 
+		{
+			ItemStack stack1 = (ItemStack)entry.getKey();
+			
+			if(stack1.getItem() == stack.getItem())
+			{
+				return true;
+			}
+
+			for(Entry<ItemStack, ItemStack> ent : entry.getValue().entrySet())
+			{
+				ItemStack stack2 = (ItemStack)ent.getKey();
+
+				if(stack2.getItem() == stack.getItem())
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 }
