@@ -1,0 +1,5 @@
+{
+    "variants": {
+        "normal": { "model": "tm:teleport_block" }
+    }
+}
